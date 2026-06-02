@@ -5,7 +5,7 @@
 // 3. 「ウェブアプリとしてデプロイ」→ 実行者:自分、アクセス:全員
 // ============================================================
 
-const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE';
+const SPREADSHEET_ID = '1l1A_K1-1srbUhA5dtwCwZjmnNHd3uDNvnwfGWleyztw';
 
 function getSheet(name) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
