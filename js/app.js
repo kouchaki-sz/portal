@@ -164,6 +164,16 @@ function escapeHtml(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+function toDateStr(val) {
+  if (!val) return '';
+  // ISO形式 "2026-07-04T15:00:00.000Z" → JST日付文字列に変換
+  if (String(val).includes('T')) {
+    const d = new Date(val);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  return String(val);
+}
+
 function priorityBadge(p) {
   if (p === 'urgent')    return '<span class="badge badge-red">緊急</span>';
   if (p === 'important') return '<span class="badge badge-yellow">重要</span>';
@@ -269,7 +279,7 @@ async function loadDashboard() {
   if (sRes.success) state.schedules = sRes.data;
 
   const today = new Date().toISOString().slice(0,10);
-  const upcoming = (state.events || []).filter(e => e.startDate >= today).slice(0,3);
+  const upcoming = (state.events || []).filter(e => toDateStr(e.startDate) >= today).slice(0,3);
   const recentNotices = (state.notices || []).slice(0,3);
 
   document.getElementById('stat-notices').textContent = state.notices.length;
@@ -294,7 +304,7 @@ async function loadDashboard() {
   document.getElementById('dash-events').innerHTML = upcoming.length
     ? `<table><thead><tr><th>日付</th><th>イベント</th><th>カテゴリ</th></tr></thead><tbody>
         ${upcoming.map(e => `<tr>
-          <td>${escapeHtml(e.startDate)}</td>
+          <td>${escapeHtml(toDateStr(e.startDate))}</td>
           <td>${escapeHtml(e.title)}</td>
           <td><span class="badge badge-blue">${escapeHtml(e.category)}</span></td>
         </tr>`).join('')}
@@ -380,7 +390,7 @@ async function renderCalendar() {
   const today = new Date().toISOString().slice(0,10);
 
   const eventsThisMonth = (state.events || []).filter(e => {
-    const d = e.startDate || '';
+    const d = toDateStr(e.startDate) || '';
     return d.startsWith(`${y}-${String(m+1).padStart(2,'0')}`);
   });
 
@@ -395,7 +405,7 @@ async function renderCalendar() {
     const dow = new Date(y, m, d).getDay();
     const isToday = dateStr === today;
     const cls = ['cal-cell', isToday ? 'today' : '', dow===0 ? 'sunday' : '', dow===6 ? 'saturday' : ''].filter(Boolean).join(' ');
-    const dayEvents = eventsThisMonth.filter(e => e.startDate === dateStr);
+    const dayEvents = eventsThisMonth.filter(e => toDateStr(e.startDate) === dateStr);
 
     html += `<div class="${cls}">
       <div class="cal-date">${d}</div>
