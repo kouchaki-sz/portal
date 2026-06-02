@@ -73,6 +73,7 @@ function dispatch(action, params, body) {
     case 'getEvents':     return getEvents();
     case 'addEvent':      return addEvent(body);
     case 'deleteEvent':   return deleteRow('Events', body.id);
+    case 'updateEvent':   return updateEvent(body);
     // Goals
     case 'getGoals':      return getGoals(p);
     case 'addGoal':       return addGoal(body);
@@ -115,7 +116,12 @@ function sheetToObjects(sheetName) {
   const headers = data[0];
   return data.slice(1).map(row => {
     const obj = {};
-    headers.forEach((h, i) => { obj[h] = row[i]; });
+    headers.forEach((h, i) => {
+      const v = row[i];
+      obj[h] = (v instanceof Date)
+        ? Utilities.formatDate(v, 'Asia/Tokyo', 'yyyy-MM-dd')
+        : v;
+    });
     return obj;
   });
 }
@@ -157,6 +163,24 @@ function addEvent(body) {
   const sheet = getSheet('Events');
   sheet.appendRow([generateId(), body.title, body.startDate, body.endDate || '', body.description || '', body.category || 'その他', body.author || '']);
   return { success: true };
+}
+
+function updateEvent(body) {
+  const sheet = getSheet('Events');
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(body.id)) {
+      ['title','startDate','endDate','description','category'].forEach(field => {
+        if (body[field] !== undefined) {
+          const idx = headers.indexOf(field);
+          if (idx >= 0) sheet.getRange(i + 1, idx + 1).setValue(body[field]);
+        }
+      });
+      return { success: true };
+    }
+  }
+  return { success: false, error: 'Not found' };
 }
 
 // ---- Goals ----

@@ -469,6 +469,51 @@
   </div>
 </div>
 
+<!-- Edit Event Modal -->
+<div class="modal-overlay" id="modal-edit-event">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📅 イベント編集</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-event')">×</button>
+    </div>
+    <form onsubmit="submitEditEvent(event)">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">タイトル *</label>
+          <input type="text" class="form-control" id="edit-event-title" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">開始日 *</label>
+            <input type="date" class="form-control" id="edit-event-start" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">終了日</label>
+            <input type="date" class="form-control" id="edit-event-end">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">カテゴリ</label>
+          <select class="form-control" id="edit-event-category">
+            <option value="work">業務</option>
+            <option value="social">交流</option>
+            <option value="urgent">緊急</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">詳細</label>
+          <textarea class="form-control" id="edit-event-desc" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-event')">キャンセル</button>
+        <button type="submit" class="btn btn-primary">更新する</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Member Modal -->
 <div class="modal-overlay" id="modal-member">
   <div class="modal">

@@ -104,6 +104,11 @@ function mockApi(action, params) {
     case 'deleteEvent':
       mockDB.events = mockDB.events.filter(x => x.id !== params.id);
       return { success: true };
+    case 'updateEvent': {
+      const ev = mockDB.events.find(x => x.id === params.id);
+      if (ev) { ['title','startDate','endDate','description','category'].forEach(f => { if (params[f] !== undefined) ev[f] = params[f]; }); }
+      return { success: true };
+    }
     case 'getGoals': {
       let items = mockDB.goals;
       if (params.memberId) items = items.filter(g => g.memberId === params.memberId);
@@ -449,6 +454,58 @@ async function renderCalendar() {
   }
 
   document.getElementById('cal-grid').innerHTML = html;
+
+  // イベント一覧テーブル更新
+  const tbody = document.getElementById('events-tbody');
+  if (tbody) {
+    const sorted = [...(state.events||[])].sort((a,b) => toDateStr(a.startDate).localeCompare(toDateStr(b.startDate)));
+    tbody.innerHTML = sorted.length ? sorted.map(e => `
+      <tr>
+        <td>${escapeHtml(toDateStr(e.startDate))}</td>
+        <td>${escapeHtml(e.title)}</td>
+        <td>${escapeHtml(e.description||'')}</td>
+        <td><span class="badge badge-blue">${escapeHtml(e.category||'')}</span></td>
+        <td>
+          <button class="btn btn-sm btn-secondary" onclick="openEditEvent('${e.id}')">編集</button>
+          <button class="btn btn-sm btn-danger btn-icon" onclick="deleteEvent('${e.id}')" style="margin-left:4px">✕</button>
+        </td>
+      </tr>`).join('')
+    : '<tr><td colspan="5" style="text-align:center;padding:30px;color:#6b7280">イベントがありません</td></tr>';
+  }
+}
+
+let editingEventId = null;
+function openEditEvent(id) {
+  const ev = state.events.find(x => x.id === id);
+  if (!ev) return;
+  editingEventId = id;
+  document.getElementById('edit-event-title').value    = ev.title;
+  document.getElementById('edit-event-start').value    = toDateStr(ev.startDate);
+  document.getElementById('edit-event-end').value      = toDateStr(ev.endDate) || toDateStr(ev.startDate);
+  document.getElementById('edit-event-category').value = ev.category || 'work';
+  document.getElementById('edit-event-desc').value     = ev.description || '';
+  openModal('modal-edit-event');
+}
+
+async function submitEditEvent(e) {
+  e.preventDefault();
+  const body = {
+    id:          editingEventId,
+    title:       document.getElementById('edit-event-title').value,
+    startDate:   document.getElementById('edit-event-start').value,
+    endDate:     document.getElementById('edit-event-end').value,
+    category:    document.getElementById('edit-event-category').value,
+    description: document.getElementById('edit-event-desc').value,
+  };
+  showSpinner();
+  const res = await api('updateEvent', body);
+  hideSpinner();
+  if (res.success) {
+    showToast('更新しました', 'success');
+    closeModal('modal-edit-event');
+    state.events = [];
+    renderCalendar();
+  } else showToast('更新に失敗しました', 'error');
 }
 
 async function submitEvent(e) {
