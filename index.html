@@ -10,7 +10,8 @@
 
 <!-- ========== Login ========== -->
 <div id="login-screen">
-  <div class="login-card">
+  <!-- Step1: アクセスコード -->
+  <div class="login-card" id="login-step1">
     <div class="login-logo">🏢</div>
     <h1>情報共有ポータル</h1>
     <p>チームのアクセスコードを入力してください</p>
@@ -19,8 +20,16 @@
       <input type="password" id="access-code" placeholder="アクセスコード"
              onkeydown="if(event.key==='Enter')handleLogin()">
     </div>
-    <button class="btn-login" onclick="handleLogin()">ログイン</button>
+    <button class="btn-login" onclick="handleLogin()">次へ</button>
     <div class="login-error" id="login-error"></div>
+  </div>
+  <!-- Step2: メンバー選択 -->
+  <div class="login-card" id="login-step2" style="display:none">
+    <div class="login-logo">👤</div>
+    <h1>メンバー選択</h1>
+    <p>あなたの名前を選んでください</p>
+    <div id="member-select-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+    <div class="login-error" id="login-error2"></div>
   </div>
 </div>
 

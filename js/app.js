@@ -197,19 +197,46 @@ async function handleLogin() {
   const code = document.getElementById('access-code').value.trim();
   if (!code) return;
   showSpinner();
-  const res = await api('verify', { code });
+  const [verifyRes, membersRes] = await Promise.all([
+    api('verify', { code }),
+    api('getMembers'),
+  ]);
   hideSpinner();
-  if (res.success) {
+  if (verifyRes.success) {
     sessionStorage.setItem('auth', '1');
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    await initApp();
+    // メンバー一覧を表示してメンバー選択ステップへ
+    state.members = membersRes.data || [];
+    showMemberSelect();
   } else {
     const err = document.getElementById('login-error');
     err.style.display = 'block';
     err.textContent = 'アクセスコードが正しくありません';
     setTimeout(() => { err.style.display = 'none'; }, 3000);
   }
+}
+
+function showMemberSelect() {
+  document.getElementById('login-step1').style.display = 'none';
+  document.getElementById('login-step2').style.display = 'block';
+  const list = document.getElementById('member-select-list');
+  list.innerHTML = state.members.map(m => `
+    <button class="btn-login" style="letter-spacing:0;font-size:15px"
+            onclick="selectMember('${m.id}')">
+      ${escapeHtml(m.name)}
+    </button>`).join('');
+}
+
+function selectMember(memberId) {
+  const member = state.members.find(m => m.id === memberId);
+  if (!member) return;
+  state.currentMember = member;
+  sessionStorage.setItem('memberId', memberId);
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('user-name').textContent = member.name;
+  document.getElementById('user-avatar').textContent = member.name[0];
+  populateMemberSelects();
+  navigate('dashboard');
 }
 
 // ---- Navigation ----
@@ -714,9 +741,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Auto-login if session exists
-  if (sessionStorage.getItem('auth')) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    initApp();
+  if (sessionStorage.getItem('auth') && sessionStorage.getItem('memberId')) {
+    const res = await api('getMembers');
+    if (res.success) {
+      state.members = res.data;
+      const member = state.members.find(m => m.id === sessionStorage.getItem('memberId'));
+      if (member) {
+        state.currentMember = member;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+        document.getElementById('user-name').textContent = member.name;
+        document.getElementById('user-avatar').textContent = member.name[0];
+        populateMemberSelects();
+        navigate('dashboard');
+        return;
+      }
+    }
+    sessionStorage.clear();
   }
 });
