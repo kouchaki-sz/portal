@@ -721,7 +721,7 @@ async function deleteMember(id) {
 }
 
 // ---- Boot ----
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Set default schedule filter dates
   const today = new Date().toISOString().slice(0,10);
   const firstOfMonth = today.slice(0,7) + '-01';
