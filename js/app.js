@@ -21,13 +21,21 @@ async function api(action, params = {}) {
   if (!url || url.includes('YOUR_DEPLOYMENT_ID')) {
     return mockApi(action, params);
   }
-  const payload = { action, ...params };
+  const readActions = ['verify','getNotices','getEvents','getGoals','getMembers','getSchedules'];
   try {
-    const res = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-    return await res.json();
+    if (readActions.includes(action)) {
+      const qp = new URLSearchParams({ action, ...params });
+      const res = await fetch(`${url}?${qp.toString()}`, { redirect: 'follow' });
+      return await res.json();
+    } else {
+      const res = await fetch(url, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action, ...params }),
+      });
+      return await res.json();
+    }
   } catch (e) {
     console.error('API error:', e);
     return { success: false, error: e.message };
