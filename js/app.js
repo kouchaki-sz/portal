@@ -232,10 +232,11 @@ function showMemberSelect() {
   document.getElementById('login-step1').style.display = 'none';
   document.getElementById('login-step2').style.display = 'block';
   const list = document.getElementById('member-select-list');
+  list.className = 'member-select-grid';
   list.innerHTML = state.members.map(m => `
-    <button class="btn-login" style="letter-spacing:0;font-size:15px"
-            onclick="selectMember('${m.id}')">
-      ${escapeHtml(m.name)}
+    <button class="member-select-btn" onclick="selectMember('${m.id}')">
+      <div class="ms-avatar">${escapeHtml(m.name[0])}</div>
+      <span>${escapeHtml(m.name)}</span>
     </button>`).join('');
 }
 
