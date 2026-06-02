@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>情報共有ポータル</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ========== Login ========== -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🏢</div>
+    <h1>情報共有ポータル</h1>
+    <p>チームのアクセスコードを入力してください</p>
+    <div class="login-input-wrap">
+      <span class="icon">🔑</span>
+      <input type="password" id="access-code" placeholder="アクセスコード"
+             onkeydown="if(event.key==='Enter')handleLogin()">
+    </div>
+    <button class="btn-login" onclick="handleLogin()">ログイン</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ========== App ========== -->
+<div id="app" style="display:flex">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">🏢 チームポータル</div>
+      <div class="brand-sub">情報共有システム</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
+        <span class="nav-icon">🏠</span> ダッシュボード
+      </div>
+      <div class="nav-item" data-page="notices" onclick="navigate('notices')">
+        <span class="nav-icon">📢</span> お知らせ
+      </div>
+      <div class="nav-item" data-page="calendar" onclick="navigate('calendar')">
+        <span class="nav-icon">📅</span> カレンダー
+      </div>
+      <div class="nav-item" data-page="goals" onclick="navigate('goals')">
+        <span class="nav-icon">🎯</span> 目標管理
+      </div>
+      <div class="nav-item" data-page="schedules" onclick="navigate('schedules')">
+        <span class="nav-icon">📋</span> 予定・実績
+      </div>
+      <div class="nav-item" data-page="members" onclick="navigate('members')">
+        <span class="nav-icon">👥</span> メンバー
+      </div>
+    </nav>
+    <div class="sidebar-footer">ver 1.0 · 10名チーム</div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title" id="page-title">ダッシュボード</div>
+      <div class="topbar-right">
+        <div class="user-badge">
+          <div class="avatar" id="user-avatar">田</div>
+          <span id="user-name">田中 太郎</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="sessionStorage.clear();location.reload()">ログアウト</button>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ===== Dashboard ===== -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">📢</div>
+            <div><div class="stat-value" id="stat-notices">-</div><div class="stat-label">お知らせ</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">📅</div>
+            <div><div class="stat-value" id="stat-events">-</div><div class="stat-label">直近のイベント</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">🎯</div>
+            <div><div class="stat-value" id="stat-goals">-</div><div class="stat-label">進行中の目標</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">👥</div>
+            <div><div class="stat-value" id="stat-members">-</div><div class="stat-label">メンバー数</div></div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📢 最新のお知らせ</div>
+              <a class="btn btn-sm btn-secondary" onclick="navigate('notices')">もっと見る</a>
+            </div>
+            <div class="card-body" id="dash-notices">
+              <div class="empty-state"><p>読み込み中...</p></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📅 直近のイベント</div>
+              <a class="btn btn-sm btn-secondary" onclick="navigate('calendar')">カレンダーへ</a>
+            </div>
+            <div class="card-body" id="dash-events">
+              <div class="empty-state"><p>読み込み中...</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Notices ===== -->
+      <div class="page" id="page-notices">
+        <div class="section-header">
+          <div class="section-title">お知らせ掲示板</div>
+          <button class="btn btn-primary" onclick="openModal('modal-notice')">＋ 新規投稿</button>
+        </div>
+        <div id="notices-list">
+          <div class="empty-state"><p>読み込み中...</p></div>
+        </div>
+      </div>
+
+      <!-- ===== Calendar ===== -->
+      <div class="page" id="page-calendar">
+        <div class="section-header">
+          <div class="section-title">イベントカレンダー</div>
+          <button class="btn btn-primary" onclick="openModal('modal-event')">＋ イベント追加</button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="calendar-nav">
+              <button class="btn btn-secondary" onclick="state.calMonth--;if(state.calMonth<0){state.calMonth=11;state.calYear--;}renderCalendar()">‹ 前月</button>
+              <h3 id="cal-label"></h3>
+              <button class="btn btn-secondary" onclick="state.calMonth++;if(state.calMonth>11){state.calMonth=0;state.calYear++;}renderCalendar()">翌月 ›</button>
+            </div>
+            <div class="cal-grid" id="cal-grid"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px">
+          <div class="card-header"><div class="card-title">イベント一覧</div></div>
+          <div class="card-body">
+            <div class="table-wrap" id="events-list">
+              <table>
+                <thead><tr><th>日付</th><th>タイトル</th><th>内容</th><th>カテゴリ</th><th></th></tr></thead>
+                <tbody id="events-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Goals ===== -->
+      <div class="page" id="page-goals">
+        <div class="section-header">
+          <div class="section-title">目標管理</div>
+          <button class="btn btn-primary" onclick="openModal('modal-goal')">＋ 目標追加</button>
+        </div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-body">
+            <div class="goals-filter">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">メンバー</label>
+                <select class="form-control" id="goal-filter-member" onchange="loadGoals()"></select>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">種別</label>
+                <select class="form-control" id="goal-filter-type" onchange="loadGoals()">
+                  <option value="">全て</option>
+                  <option value="yearly">年次目標</option>
+                  <option value="monthly">月次目標</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">年度</label>
+                <select class="form-control" id="goal-filter-year" onchange="loadGoals()"></select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="goals-list">
+          <div class="empty-state"><p>読み込み中...</p></div>
+        </div>
+      </div>
+
+      <!-- ===== Schedules ===== -->
+      <div class="page" id="page-schedules">
+        <div class="section-header">
+          <div class="section-title">予定・実績管理</div>
+          <button class="btn btn-primary" onclick="openModal('modal-schedule')">＋ 予定追加</button>
+        </div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-body">
+            <div class="schedule-filter">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">メンバー</label>
+                <select class="form-control" id="schedule-filter-member" onchange="loadSchedules()"></select>
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">開始日</label>
+                <input type="date" class="form-control" id="schedule-date-from" onchange="loadSchedules()">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">終了日</label>
+                <input type="date" class="form-control" id="schedule-date-to" onchange="loadSchedules()">
+              </div>
+              <button class="btn btn-secondary" onclick="loadSchedules()" style="margin-top:20px">検索</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>日付</th><th>メンバー</th><th>予定内容</th><th>実績</th><th>状態</th><th></th></tr>
+                </thead>
+                <tbody id="schedules-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Members ===== -->
+      <div class="page" id="page-members">
+        <div class="section-header">
+          <div class="section-title">メンバー管理</div>
+          <button class="btn btn-primary" onclick="openModal('modal-member')">＋ メンバー追加</button>
+        </div>
+        <div class="member-grid" id="members-grid"></div>
+      </div>
+
+    </main>
+  </div><!-- /main-wrap -->
+</div><!-- /app -->
+
+<!-- ========== Modals ========== -->
+
+<!-- Notice Modal -->
+<div class="modal-overlay" id="modal-notice">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📢 お知らせ投稿</div>
+      <button class="modal-close" onclick="closeModal('modal-notice')">×</button>
+    </div>
+    <form onsubmit="submitNotice(event)">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">タイトル *</label>
+          <input type="text" class="form-control" id="notice-title" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">内容 *</label>
+          <textarea class="form-control" id="notice-content" rows="5" required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">優先度</label>
+          <select class="form-control" id="notice-priority">
+            <option value="normal">通常</option>
+            <option value="important">重要</option>
+            <option value="urgent">緊急</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-notice')">キャンセル</button>
+        <button type="submit" class="btn btn-primary">投稿する</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Event Modal -->
+<div class="modal-overlay" id="modal-event">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📅 イベント追加</div>
+      <button class="modal-close" onclick="closeModal('modal-event')">×</button>
+    </div>
+    <form onsubmit="submitEvent(event)">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">タイトル *</label>
+          <input type="text" class="form-control" id="event-title" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">開始日 *</label>
+            <input type="date" class="form-control" id="event-start" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">終了日</label>
+            <input type="date" class="form-control" id="event-end">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">カテゴリ</label>
+          <select class="form-control" id="event-category">
+            <option value="work">業務</option>
+            <option value="social">交流</option>
+            <option value="urgent">緊急</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">詳細</label>
+          <textarea class="form-control" id="event-desc" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-event')">キャンセル</button>
+        <button type="submit" class="btn btn-primary">追加する</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Goal Modal -->
+<div class="modal-overlay" id="modal-goal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🎯 目標追加</div>
+      <button class="modal-close" onclick="closeModal('modal-goal')">×</button>
+    </div>
+    <form onsubmit="submitGoal(event)">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">メンバー *</label>
+          <select class="form-control" id="goal-member" required></select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">種別 *</label>
+            <select class="form-control" id="goal-type" onchange="onGoalTypeChange()" required>
+              <option value="yearly">年次目標</option>
+              <option value="monthly">月次目標</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">年度 *</label>
+            <select class="form-control" id="goal-year" required></select>
+          </div>
+        </div>
+        <div class="form-group" id="goal-month-group" style="display:none">
+          <label class="form-label">月 *</label>
+          <select class="form-control" id="goal-month">
+            <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+            <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+            <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+            <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">目標内容 *</label>
+          <textarea class="form-control" id="goal-content" rows="4" required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-goal')">キャンセル</button>
+        <button type="submit" class="btn btn-primary">追加する</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Schedule Modal -->
+<div class="modal-overlay" id="modal-schedule">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📋 予定追加</div>
+      <button class="modal-close" onclick="closeModal('modal-schedule')">×</button>
+    </div>
+    <form onsubmit="submitSchedule(event)">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">メンバー *</label>
+            <select class="form-control" id="schedule-member" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">日付 *</label>
+            <input type="date" class="form-control" id="schedule-date" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">予定内容 *</label>
+          <textarea class="form-control" id="schedule-plan" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">実績（後から記入可）</label>
+          <textarea class="form-control" id="schedule-actual" rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">状態</label>
+            <select class="form-control" id="schedule-status">
+              <option value="planned">予定</option>
+              <option value="done">完了</option>
+              <option value="partial">一部完了</option>
+              <option value="cancelled">中止</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">備考</label>
+            <input type="text" class="form-control" id="schedule-note">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-schedule')">キャンセル</button>
+        <button type="submit" class="btn btn-primary">追加する</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Schedule Modal -->
+<div class="modal-overlay" id="modal-edit-schedule">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📋 予定・実績 編集</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-schedule')">×</button>
+    </div>
+    <form onsubmit="submitEditSchedule(event)">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">予定内容</label>
+          <textarea class="form-control" id="edit-schedule-plan" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">実績</label>
+          <textarea class="form-control" id="edit-schedule-actual" rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">状態</label>
+            <select class="form-control" id="edit-schedule-status">
+              <option value="planned">予定</option>
+              <option value="done">完了</option>
+              <option value="partial">一部完了</option>
+              <option value="cancelled">中止</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">備考</label>
+            <input type="text" class="form-control" id="edit-schedule-note">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-schedule')">キャンセル</button>
+        <button type="submit" class="btn btn-primary">更新する</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Member Modal -->
+<div class="modal-overlay" id="modal-member">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">👤 メンバー追加</div>
+      <button class="modal-close" onclick="closeModal('modal-member')">×</button>
+    </div>
+    <form onsubmit="submitMember(event)">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">氏名 *</label>
+          <input type="text" class="form-control" id="member-name" placeholder="例：山田 太郎" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">役割</label>
+          <input type="text" class="form-control" id="member-role" placeholder="例：リーダー、メンバー">
+        </div>
+        <div class="form-group">
+          <label class="form-label">メールアドレス</label>
+          <input type="email" class="form-control" id="member-email">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-member')">キャンセル</button>
+        <button type="submit" class="btn btn-primary">追加する</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== Overlays ========== -->
+<div class="spinner-overlay" id="spinner">
+  <div class="spinner"></div>
+</div>
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ========== Scripts ========== -->
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
