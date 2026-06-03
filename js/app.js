@@ -177,6 +177,13 @@ function escapeHtml(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+function toTimeStr(val) {
+  if (!val) return '';
+  const s = String(val).replace(/^T/, ''); // Tプレフィックスを除去
+  if (s.match(/^\d{4}-/)) return '';       // 古い壊れたデータは非表示
+  return s.slice(0, 5);                    // HH:MMのみ返す
+}
+
 function toDateStr(val) {
   if (!val) return '';
   // ISO形式 "2026-07-04T15:00:00.000Z" → JST日付文字列に変換
@@ -450,7 +457,7 @@ async function renderCalendar() {
 
     html += `<div class="${cls}">
       <div class="cal-date">${d}</div>
-      ${dayEvents.map(e => `<div class="cal-event cat-${e.category}" title="${escapeHtml(e.description)}">${e.startTime ? escapeHtml(e.startTime)+' ' : ''}${escapeHtml(e.title)}</div>`).join('')}
+      ${dayEvents.map(e => `<div class="cal-event cat-${e.category}" title="${escapeHtml(e.description)}">${toTimeStr(e.startTime) ? toTimeStr(e.startTime)+' ' : ''}${escapeHtml(e.title)}</div>`).join('')}
     </div>`;
   }
 
@@ -463,7 +470,7 @@ async function renderCalendar() {
     tbody.innerHTML = sorted.length ? sorted.map(e => `
       <tr>
         <td>${escapeHtml(toDateStr(e.startDate))}</td>
-        <td>${e.startTime ? escapeHtml(e.startTime) : ''} ${e.endTime ? '〜 '+escapeHtml(e.endTime) : ''}</td>
+        <td>${toTimeStr(e.startTime)} ${toTimeStr(e.endTime) ? '〜 '+toTimeStr(e.endTime) : ''}</td>
         <td>${escapeHtml(e.title)}</td>
         <td>${escapeHtml(e.description||'')}</td>
         <td><span class="badge badge-blue">${escapeHtml(e.category||'')}</span></td>
@@ -492,8 +499,8 @@ function openEditEvent(id) {
   editingEventId = id;
   document.getElementById('edit-event-title').value      = ev.title;
   document.getElementById('edit-event-start').value      = toDateStr(ev.startDate);
-  document.getElementById('edit-event-start-time').value = ev.startTime || '';
-  document.getElementById('edit-event-end-time').value   = ev.endTime || '';
+  document.getElementById('edit-event-start-time').value = toTimeStr(ev.startTime);
+  document.getElementById('edit-event-end-time').value   = toTimeStr(ev.endTime);
   document.getElementById('edit-event-category').value  = ev.category || 'work';
   document.getElementById('edit-event-desc').value      = ev.description || '';
   openModal('modal-edit-event');
@@ -506,8 +513,8 @@ async function submitEditEvent(e) {
     title:       document.getElementById('edit-event-title').value,
     startDate:   document.getElementById('edit-event-start').value,
     endDate:     document.getElementById('edit-event-start').value,
-    startTime:   document.getElementById('edit-event-start-time').value,
-    endTime:     document.getElementById('edit-event-end-time').value,
+    startTime:   'T' + document.getElementById('edit-event-start-time').value,
+    endTime:     'T' + document.getElementById('edit-event-end-time').value,
     category:    document.getElementById('edit-event-category').value,
     description: document.getElementById('edit-event-desc').value,
   };
@@ -528,8 +535,8 @@ async function submitEvent(e) {
     title:       document.getElementById('event-title').value,
     startDate:   document.getElementById('event-start').value,
     endDate:     document.getElementById('event-start').value,
-    startTime:   document.getElementById('event-start-time').value,
-    endTime:     document.getElementById('event-end-time').value,
+    startTime:   'T' + document.getElementById('event-start-time').value,
+    endTime:     'T' + document.getElementById('event-end-time').value,
     description: document.getElementById('event-desc').value,
     category:    document.getElementById('event-category').value,
     author:      state.currentMember?.name || '',
