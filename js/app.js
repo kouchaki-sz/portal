@@ -498,8 +498,8 @@ function openEventDetail(id) {
   detailEventId = id;
   document.getElementById('detail-event-title').textContent    = ev.title;
   document.getElementById('detail-event-date').textContent     = toDateStr(ev.startDate);
-  const st = toTimeStr(ev.startTime), et = toTimeStr(ev.endTime);
-  document.getElementById('detail-event-time').textContent     = st ? (et ? `${st} 〜 ${et}` : st) : '未設定';
+  document.getElementById('detail-event-start-time').textContent = toTimeStr(ev.startTime) || '未設定';
+  document.getElementById('detail-event-end-time').textContent   = toTimeStr(ev.endTime)   || '未設定';
   document.getElementById('detail-event-category').textContent = ev.category || '';
   document.getElementById('detail-event-desc').textContent     = ev.description || '';
   openModal('modal-event-detail');
