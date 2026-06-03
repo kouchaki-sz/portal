@@ -483,7 +483,6 @@ function openEditEvent(id) {
   editingEventId = id;
   document.getElementById('edit-event-title').value      = ev.title;
   document.getElementById('edit-event-start').value      = toDateStr(ev.startDate);
-  document.getElementById('edit-event-end').value        = toDateStr(ev.endDate) || toDateStr(ev.startDate);
   document.getElementById('edit-event-start-time').value = ev.startTime || '';
   document.getElementById('edit-event-end-time').value   = ev.endTime || '';
   document.getElementById('edit-event-category').value  = ev.category || 'work';
@@ -497,7 +496,7 @@ async function submitEditEvent(e) {
     id:          editingEventId,
     title:       document.getElementById('edit-event-title').value,
     startDate:   document.getElementById('edit-event-start').value,
-    endDate:     document.getElementById('edit-event-end').value,
+    endDate:     document.getElementById('edit-event-start').value,
     startTime:   document.getElementById('edit-event-start-time').value,
     endTime:     document.getElementById('edit-event-end-time').value,
     category:    document.getElementById('edit-event-category').value,
@@ -519,7 +518,7 @@ async function submitEvent(e) {
   const body = {
     title:       document.getElementById('event-title').value,
     startDate:   document.getElementById('event-start').value,
-    endDate:     document.getElementById('event-end').value || document.getElementById('event-start').value,
+    endDate:     document.getElementById('event-start').value,
     startTime:   document.getElementById('event-start-time').value,
     endTime:     document.getElementById('event-end-time').value,
     description: document.getElementById('event-desc').value,
