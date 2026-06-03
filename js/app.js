@@ -477,7 +477,7 @@ async function renderCalendar() {
 
 let editingEventId = null;
 function openEditEvent(id) {
-  const ev = state.events.find(x => x.id === id);
+  const ev = state.events.find(x => String(x.id) === String(id));
   if (!ev) return;
   editingEventId = id;
   document.getElementById('edit-event-title').value    = ev.title;
@@ -697,7 +697,7 @@ async function submitSchedule(e) {
 
 let editingScheduleId = null;
 function openEditSchedule(id) {
-  const s = state.schedules.find(x => x.id === id);
+  const s = state.schedules.find(x => String(x.id) === String(id));
   if (!s) return;
   editingScheduleId = id;
   document.getElementById('edit-schedule-plan').value   = s.plan;
