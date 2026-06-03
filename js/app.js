@@ -465,7 +465,7 @@ async function renderCalendar() {
 
     html += `<div class="${cls}">
       <div class="cal-date">${d}</div>
-      ${dayEvents.map(e => `<div class="cal-event cat-${e.category}" title="${escapeHtml(e.description)}">${toTimeStr(e.startTime) ? toTimeStr(e.startTime)+' ' : ''}${escapeHtml(e.title)}</div>`).join('')}
+      ${dayEvents.map(e => `<div class="cal-event cat-${e.category}" onclick="openEventDetail('${e.id}')" style="cursor:pointer">${toTimeStr(e.startTime) ? toTimeStr(e.startTime)+' ' : ''}${escapeHtml(e.title)}</div>`).join('')}
     </div>`;
   }
 
@@ -479,7 +479,7 @@ async function renderCalendar() {
       <tr>
         <td>${escapeHtml(toDateStr(e.startDate))}</td>
         <td>${toTimeStr(e.startTime)} ${toTimeStr(e.endTime) ? '〜 '+toTimeStr(e.endTime) : ''}</td>
-        <td>${escapeHtml(e.title)}</td>
+        <td style="cursor:pointer;color:var(--primary)" onclick="openEventDetail('${e.id}')">${escapeHtml(e.title)}</td>
         <td>${escapeHtml(e.description||'')}</td>
         <td><span class="badge badge-blue">${escapeHtml(e.category||'')}</span></td>
         <td>
@@ -489,6 +489,25 @@ async function renderCalendar() {
       </tr>`).join('')
     : '<tr><td colspan="5" style="text-align:center;padding:30px;color:#6b7280">イベントがありません</td></tr>';
   }
+}
+
+let detailEventId = null;
+function openEventDetail(id) {
+  const ev = state.events.find(x => String(x.id) === String(id));
+  if (!ev) return;
+  detailEventId = id;
+  document.getElementById('detail-event-title').textContent    = ev.title;
+  document.getElementById('detail-event-date').textContent     = toDateStr(ev.startDate);
+  const st = toTimeStr(ev.startTime), et = toTimeStr(ev.endTime);
+  document.getElementById('detail-event-time').textContent     = st ? (et ? `${st} 〜 ${et}` : st) : '未設定';
+  document.getElementById('detail-event-category').textContent = ev.category || '';
+  document.getElementById('detail-event-desc').textContent     = ev.description || '';
+  openModal('modal-event-detail');
+}
+
+function openEditFromDetail() {
+  closeModal('modal-event-detail');
+  openEditEvent(detailEventId);
 }
 
 async function deleteEvent(id) {
