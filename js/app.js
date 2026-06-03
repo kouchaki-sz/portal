@@ -450,7 +450,7 @@ async function renderCalendar() {
 
     html += `<div class="${cls}">
       <div class="cal-date">${d}</div>
-      ${dayEvents.map(e => `<div class="cal-event cat-${e.category}" title="${escapeHtml(e.description)}">${escapeHtml(e.title)}</div>`).join('')}
+      ${dayEvents.map(e => `<div class="cal-event cat-${e.category}" title="${escapeHtml(e.description)}">${e.startTime ? escapeHtml(e.startTime)+' ' : ''}${escapeHtml(e.title)}</div>`).join('')}
     </div>`;
   }
 
@@ -463,6 +463,7 @@ async function renderCalendar() {
     tbody.innerHTML = sorted.length ? sorted.map(e => `
       <tr>
         <td>${escapeHtml(toDateStr(e.startDate))}</td>
+        <td>${e.startTime ? escapeHtml(e.startTime) : ''} ${e.endTime ? '〜 '+escapeHtml(e.endTime) : ''}</td>
         <td>${escapeHtml(e.title)}</td>
         <td>${escapeHtml(e.description||'')}</td>
         <td><span class="badge badge-blue">${escapeHtml(e.category||'')}</span></td>
@@ -480,11 +481,13 @@ function openEditEvent(id) {
   const ev = state.events.find(x => String(x.id) === String(id));
   if (!ev) return;
   editingEventId = id;
-  document.getElementById('edit-event-title').value    = ev.title;
-  document.getElementById('edit-event-start').value    = toDateStr(ev.startDate);
-  document.getElementById('edit-event-end').value      = toDateStr(ev.endDate) || toDateStr(ev.startDate);
-  document.getElementById('edit-event-category').value = ev.category || 'work';
-  document.getElementById('edit-event-desc').value     = ev.description || '';
+  document.getElementById('edit-event-title').value      = ev.title;
+  document.getElementById('edit-event-start').value      = toDateStr(ev.startDate);
+  document.getElementById('edit-event-end').value        = toDateStr(ev.endDate) || toDateStr(ev.startDate);
+  document.getElementById('edit-event-start-time').value = ev.startTime || '';
+  document.getElementById('edit-event-end-time').value   = ev.endTime || '';
+  document.getElementById('edit-event-category').value  = ev.category || 'work';
+  document.getElementById('edit-event-desc').value      = ev.description || '';
   openModal('modal-edit-event');
 }
 
@@ -495,6 +498,8 @@ async function submitEditEvent(e) {
     title:       document.getElementById('edit-event-title').value,
     startDate:   document.getElementById('edit-event-start').value,
     endDate:     document.getElementById('edit-event-end').value,
+    startTime:   document.getElementById('edit-event-start-time').value,
+    endTime:     document.getElementById('edit-event-end-time').value,
     category:    document.getElementById('edit-event-category').value,
     description: document.getElementById('edit-event-desc').value,
   };
@@ -515,6 +520,8 @@ async function submitEvent(e) {
     title:       document.getElementById('event-title').value,
     startDate:   document.getElementById('event-start').value,
     endDate:     document.getElementById('event-end').value || document.getElementById('event-start').value,
+    startTime:   document.getElementById('event-start-time').value,
+    endTime:     document.getElementById('event-end-time').value,
     description: document.getElementById('event-desc').value,
     category:    document.getElementById('event-category').value,
     author:      state.currentMember?.name || '',

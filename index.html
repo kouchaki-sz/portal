@@ -155,7 +155,7 @@
           <div class="card-body">
             <div class="table-wrap" id="events-list">
               <table>
-                <thead><tr><th>日付</th><th>タイトル</th><th>内容</th><th>カテゴリ</th><th></th></tr></thead>
+                <thead><tr><th>日付</th><th>時刻</th><th>タイトル</th><th>内容</th><th>カテゴリ</th><th></th></tr></thead>
                 <tbody id="events-tbody"></tbody>
               </table>
             </div>
@@ -305,6 +305,16 @@
           <div class="form-group">
             <label class="form-label">終了日</label>
             <input type="date" class="form-control" id="event-end">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">開始時刻</label>
+            <input type="time" class="form-control" id="event-start-time">
+          </div>
+          <div class="form-group">
+            <label class="form-label">終了時刻</label>
+            <input type="time" class="form-control" id="event-end-time">
           </div>
         </div>
         <div class="form-group">
@@ -490,6 +500,16 @@
           <div class="form-group">
             <label class="form-label">終了日</label>
             <input type="date" class="form-control" id="edit-event-end">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">開始時刻</label>
+            <input type="time" class="form-control" id="edit-event-start-time">
+          </div>
+          <div class="form-group">
+            <label class="form-label">終了時刻</label>
+            <input type="time" class="form-control" id="edit-event-end-time">
           </div>
         </div>
         <div class="form-group">

@@ -22,7 +22,7 @@ function initSheet(sheet, name) {
     Settings:   [['key', 'value'], ['access_code', 'portal2024']],
     Members:    [['id', 'name', 'role', 'email', 'joinDate']],
     Notices:    [['id', 'title', 'content', 'author', 'date', 'priority']],
-    Events:     [['id', 'title', 'startDate', 'endDate', 'description', 'category', 'author']],
+    Events:     [['id', 'title', 'startDate', 'endDate', 'startTime', 'endTime', 'description', 'category', 'author']],
     Goals:      [['id', 'memberId', 'memberName', 'type', 'year', 'month', 'content', 'status', 'createdAt']],
     Schedules:  [['id', 'memberId', 'memberName', 'date', 'plan', 'actual', 'status', 'note']]
   };
@@ -161,7 +161,7 @@ function getEvents() {
 
 function addEvent(body) {
   const sheet = getSheet('Events');
-  sheet.appendRow([generateId(), body.title, body.startDate, body.endDate || '', body.description || '', body.category || 'その他', body.author || '']);
+  sheet.appendRow([generateId(), body.title, body.startDate, body.endDate || body.startDate, body.startTime || '', body.endTime || '', body.description || '', body.category || 'その他', body.author || '']);
   return { success: true };
 }
 
@@ -171,7 +171,7 @@ function updateEvent(body) {
   const headers = data[0];
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][0]) === String(body.id)) {
-      ['title','startDate','endDate','description','category'].forEach(field => {
+      ['title','startDate','endDate','startTime','endTime','description','category'].forEach(field => {
         if (body[field] !== undefined) {
           const idx = headers.indexOf(field);
           if (idx >= 0) sheet.getRange(i + 1, idx + 1).setValue(body[field]);
