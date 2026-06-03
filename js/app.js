@@ -476,6 +476,15 @@ async function renderCalendar() {
   }
 }
 
+async function deleteEvent(id) {
+  if (!confirm('このイベントを削除しますか？')) return;
+  showSpinner();
+  const res = await api('deleteEvent', { id });
+  hideSpinner();
+  if (res.success) { showToast('削除しました'); state.events = []; renderCalendar(); }
+  else showToast('削除に失敗しました', 'error');
+}
+
 let editingEventId = null;
 function openEditEvent(id) {
   const ev = state.events.find(x => String(x.id) === String(id));
