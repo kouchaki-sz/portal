@@ -180,8 +180,16 @@ function escapeHtml(s) {
 function toTimeStr(val) {
   if (!val) return '';
   const s = String(val).replace(/^T/, ''); // Tプレフィックスを除去
-  if (s.match(/^\d{4}-/)) return '';       // 古い壊れたデータは非表示
-  return s.slice(0, 5);                    // HH:MMのみ返す
+  if (!s) return '';
+  // ISO形式 (例: "1899-12-29T15:00:00.000Z") → JST時刻に変換
+  if (s.includes('T') && s.includes('Z')) {
+    const d = new Date(s);
+    return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  }
+  // 日付のみ形式 (YYYY-MM-DD) は非表示
+  if (s.match(/^\d{4}-\d{2}-\d{2}$/)) return '';
+  // 通常のHH:MM形式
+  return s.slice(0, 5);
 }
 
 function toDateStr(val) {
