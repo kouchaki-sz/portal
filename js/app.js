@@ -266,6 +266,8 @@ function selectMember(memberId) {
   document.getElementById('user-avatar').textContent = member.name[0];
   populateMemberSelects();
   navigate('dashboard');
+  // アクセスログを記録（結果は無視）
+  api('addAccessLog', { memberName: member.name, action: 'ログイン' }).catch(() => {});
 }
 
 // ---- Navigation ----
