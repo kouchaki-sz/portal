@@ -266,8 +266,12 @@ function selectMember(memberId) {
   document.getElementById('user-avatar').textContent = member.name[0];
   populateMemberSelects();
   navigate('dashboard');
-  // アクセスログを記録（結果は無視）
   api('addAccessLog', { memberName: member.name }).catch(() => {});
+}
+
+function logAction(action) {
+  const name = state.currentMember?.name || '';
+  api('addAccessLog', { memberName: name, logAction: action }).catch(() => {});
 }
 
 // ---- Navigation ----
@@ -415,6 +419,7 @@ async function submitNotice(e) {
     showToast('お知らせを投稿しました', 'success');
     closeModal('modal-notice');
     loadNotices();
+    logAction('お知らせ追加：' + body.title);
   } else showToast('投稿に失敗しました', 'error');
 }
 
@@ -423,7 +428,7 @@ async function deleteNotice(id) {
   showSpinner();
   const res = await api('deleteNotice', { id });
   hideSpinner();
-  if (res.success) { showToast('削除しました'); loadNotices(); }
+  if (res.success) { showToast('削除しました'); loadNotices(); logAction('お知らせ削除'); }
   else showToast('削除に失敗しました', 'error');
 }
 
@@ -517,7 +522,7 @@ async function deleteEvent(id) {
   showSpinner();
   const res = await api('deleteEvent', { id });
   hideSpinner();
-  if (res.success) { showToast('削除しました'); state.events = []; renderCalendar(); }
+  if (res.success) { showToast('削除しました'); state.events = []; renderCalendar(); logAction('イベント削除'); }
   else showToast('削除に失敗しました', 'error');
 }
 
@@ -555,6 +560,7 @@ async function submitEditEvent(e) {
     closeModal('modal-edit-event');
     state.events = [];
     renderCalendar();
+    logAction('イベント編集：' + body.title);
   } else showToast('更新に失敗しました', 'error');
 }
 
@@ -576,6 +582,7 @@ async function submitEvent(e) {
   if (res.success) {
     showToast('イベントを追加しました', 'success');
     closeModal('modal-event');
+    logAction('イベント追加：' + body.title);
     state.events = [];
     renderCalendar();
   } else showToast('追加に失敗しました', 'error');
@@ -644,7 +651,7 @@ async function toggleGoal(id, currentStatus) {
   showSpinner();
   const res = await api('updateGoal', { id, status: newStatus });
   hideSpinner();
-  if (res.success) loadGoals();
+  if (res.success) { loadGoals(); logAction('目標ステータス更新'); }
   else showToast('更新に失敗しました', 'error');
 }
 
@@ -653,7 +660,7 @@ async function deleteGoal(id) {
   showSpinner();
   const res = await api('deleteGoal', { id });
   hideSpinner();
-  if (res.success) { showToast('削除しました'); loadGoals(); }
+  if (res.success) { showToast('削除しました'); loadGoals(); logAction('目標削除'); }
   else showToast('削除に失敗しました', 'error');
 }
 
@@ -677,6 +684,7 @@ async function submitGoal(e) {
     showToast('目標を追加しました', 'success');
     closeModal('modal-goal');
     loadGoals();
+    logAction('目標追加');
   } else showToast('追加に失敗しました', 'error');
 }
 
@@ -743,6 +751,7 @@ async function submitSchedule(e) {
     showToast('予定を追加しました', 'success');
     closeModal('modal-schedule');
     loadSchedules();
+    logAction('スケジュール追加');
   } else showToast('追加に失敗しました', 'error');
 }
 
@@ -774,6 +783,7 @@ async function submitEditSchedule(e) {
     showToast('更新しました', 'success');
     closeModal('modal-edit-schedule');
     loadSchedules();
+    logAction('スケジュール更新');
   } else showToast('更新に失敗しました', 'error');
 }
 
@@ -782,7 +792,7 @@ async function deleteSchedule(id) {
   showSpinner();
   const res = await api('deleteSchedule', { id });
   hideSpinner();
-  if (res.success) { showToast('削除しました'); loadSchedules(); }
+  if (res.success) { showToast('削除しました'); loadSchedules(); logAction('スケジュール削除'); }
   else showToast('削除に失敗しました', 'error');
 }
 
