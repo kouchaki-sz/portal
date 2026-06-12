@@ -267,7 +267,7 @@ function selectMember(memberId) {
   populateMemberSelects();
   navigate('dashboard');
   // アクセスログを記録（結果は無視）
-  api('addAccessLog', { memberName: member.name, action: 'ログイン' }).catch(() => {});
+  api('addAccessLog', { memberName: member.name }).catch(() => {});
 }
 
 // ---- Navigation ----
