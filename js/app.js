@@ -21,7 +21,7 @@ async function api(action, params = {}) {
   if (!url || url.includes('YOUR_DEPLOYMENT_ID')) {
     return mockApi(action, params);
   }
-  const readActions = ['verify','getNotices','getEvents','getGoals','getMembers','getSchedules'];
+  const readActions = ['verify','getNotices','getEvents','getGoals','getMembers','getSchedules','addAccessLog'];
   try {
     if (readActions.includes(action)) {
       const qp = new URLSearchParams({ action, ...params });
